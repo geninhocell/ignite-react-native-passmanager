@@ -4,9 +4,9 @@ import { useForm } from 'react-hook-form';
 import { RFValue } from 'react-native-responsive-fontsize';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import uuid from 'react-native-uuid';
 
+import {useStorage} from '../../hook/storage';
 import { Input } from '../../components/Form/Input';
 import { Button } from '../../components/Form/Button';
 
@@ -40,7 +40,7 @@ export function RegisterLoginData() {
     resolver: yupResolver(schema)
   });
 
-  const dataKey = '@passmanager:logins';
+  const {setItem} = useStorage();
 
   async function handleRegister(formData: FormData) {
     const newLoginData = {
@@ -48,14 +48,8 @@ export function RegisterLoginData() {
       ...formData
     }
 
-    try{
-      const dataStorage = await AsyncStorage.getItem(dataKey);
-
-      const dataParse = dataStorage
-      ? JSON.parse(dataStorage)
-      : [];
-      
-      await AsyncStorage.setItem(dataKey, JSON.stringify([...dataParse, newLoginData]));
+    try{      
+      await setItem(newLoginData);
     }catch(err){
       Alert.alert('Erro ao salvar')
     } 
